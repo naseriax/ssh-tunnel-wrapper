@@ -16,19 +16,19 @@ if __name__ == "__main__":
 
     #First Jump Server===========================================================
     jumpServer1 = '1.1.1.1'
-    FromClientandJumpServer1 = 22
+    allowedPort1 = 22
     js1User = "root"
     js1Pass = "password"
 
     #Second Jump Server==========================================================
     jumpServer2 = '2.2.2.2'
-    FromJumpServer1andJumpServer2 = 22
+    allowedPort2 = 22
     js2User = "root"
     js2Pass = "password.(0V"
 
     #Target======================================================================
     target = '10.10.10.10'
-    FromJumpServer2andtarget = 22
+    targetPort = 22
     targetUser = "root"
     targetPassword="password"
     cmd = 'uname -a'
@@ -36,19 +36,19 @@ if __name__ == "__main__":
 
 
     with sshtunnel.open_tunnel(
-        ssh_address_or_host=(jumpServer1, FromClientandJumpServer1),
-        remote_bind_address=(jumpServer2, FromJumpServer1andJumpServer2),
+        ssh_address_or_host=(jumpServer1, allowedPort1),
+        remote_bind_address=(jumpServer2, allowedPort2),
         ssh_username=js1User,
         ssh_password=js1Pass,
     ) as tunnel1:
-        print(f'Connection to tunnel1 {jumpServer1}:{FromClientandJumpServer1} OK...')
+        print(f'Connection to tunnel1 {jumpServer1}:{allowedPort1} OK...')
         with sshtunnel.open_tunnel(
             ssh_address_or_host=('localhost', tunnel1.local_bind_port),
-            remote_bind_address=(target, FromJumpServer2andtarget),   
+            remote_bind_address=(target, targetPort),   
             ssh_username=js2User,
             ssh_password=js2Pass,
         ) as tunnel2:
-            print(f'Connection to tunnel2 {jumpServer2}:{FromJumpServer1andJumpServer2} OK...')
+            print(f'Connection to tunnel2 {jumpServer2}:{allowedPort2} OK...')
             with SSHClient() as ssh:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect('localhost',
@@ -56,5 +56,5 @@ if __name__ == "__main__":
                     username=targetUser,
                     password=targetPassword,
                 )
-                print(f'Connection to Target {target}:{FromJumpServer2andtarget} OK...')
+                print(f'Connection to Target {target}:{targetPort} OK...')
                 print(cliExec(cmd))
